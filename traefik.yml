@@ -14,7 +14,7 @@ services:
       - 443:443
     environment:
       - CF_API_EMAIL=lab@skyscrpr.studio
-      - CF_DNS_API_TOKEN=FRdicWGVDnAmViIdjttgKij3G1x283C2hX21wSUq
+      - CF_DNS_API_TOKEN=$CFAPITOKEN
       # - CF_API_KEY=YOU_API_KEY
       # be sure to use the correct one depending on if you are using a token or key
     volumes:
@@ -27,7 +27,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.entrypoints=http"
       - "traefik.http.routers.traefik.rule=Host(`monitor.skyscrpr.studio`)"
-      - "traefik.http.middlewares.traefik-auth.basicauth.users=skyscrpr:$$apr1$$yhJvB5sw$$WnhCUw1E42ko2oPPLqG3S1"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=$USER:$PASSWD
       - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
