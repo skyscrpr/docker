@@ -1,0 +1,31 @@
+version: "3.7"
+
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /home/skyscrpr/navidrome/data:/data
+      - /mnt/datam/Library:/music:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.navidrome.entrypoints=http"
+      - "traefik.http.routers.navidrome.rule=Host(`navidrome.skyscrpr.studio`)"
+      - "traefik.http.middlewares.navidrome-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.navidrome.middlewares=navidrome-https-redirect"
+      - "traefik.http.routers.navidrome-secure.entrypoints=https"
+      - "traefik.http.routers.navidrome-secure.rule=Host(`navidrome.skyscrpr.studio`)"
+      - "traefik.http.routers.navidrome-secure.tls=true"
+      - "traefik.http.routers.navidrome-secure.service=navidrome"
+      - "traefik.http.services.navidrome.loadbalancer.server.port=4533"
+      - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true

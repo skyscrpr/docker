@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+  nzbget:
+    container_name: nzbget
+    image: cr.hotio.dev/hotio/nzbget
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /home/skyscrpr/nzbget/data:/config
+      - /mnt/data/downloads:/data/downloads
+      - /mnt/data/queue:/data/queue
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nzbget.entrypoints=http"
+      - "traefik.http.routers.nzbget.rule=Host(`nzbget.skyscrpr.studio`)"
+      - "traefik.http.middlewares.nzbget-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.nzbget.middlewares=nzbget-https-redirect"
+      - "traefik.http.routers.nzbget-secure.entrypoints=https"
+      - "traefik.http.routers.nzbget-secure.rule=Host(`nzbget.skyscrpr.studio`)"
+      - "traefik.http.routers.nzbget-secure.tls=true"
+      - "traefik.http.routers.nzbget-secure.service=nzbget"
+      - "traefik.http.services.nzbget.loadbalancer.server.port=6789"
+      - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true

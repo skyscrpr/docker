@@ -1,0 +1,31 @@
+version: "3.7"
+
+services:
+  picard:
+    image: mikenye/picard:latest
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /home/skyscrpr/picard/data:/config:rw
+      - /mnt/datam/Library:/storage:rw
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.picard.entrypoints=http"
+      - "traefik.http.routers.picard.rule=Host(`picard.skyscrpr.studio`)"
+      - "traefik.http.middlewares.picard-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.picard.middlewares=picard-https-redirect"
+      - "traefik.http.routers.picard-secure.entrypoints=https"
+      - "traefik.http.routers.picard-secure.rule=Host(`picard.skyscrpr.studio`)"
+      - "traefik.http.routers.picard-secure.tls=true"
+      - "traefik.http.routers.picard-secure.service=picard"
+      - "traefik.http.services.picard.loadbalancer.server.port=5800"
+      - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true
