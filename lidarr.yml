@@ -1,0 +1,30 @@
+version: "3.7"
+services:
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /home/skyscrpr/lidarr/config:/config
+      # - /path/to/music:/music #optional
+      - /mnt/datam/downloads:/downloads #optional
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lidarr.entrypoints=http"
+      - "traefik.http.routers.lidarr.rule=Host(`lidarr.skyscrpr.studio`)"
+      - "traefik.http.middlewares.lidarr-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.lidarr.middlewares=lidarr-https-redirect"
+      - "traefik.http.routers.lidarr-secure.entrypoints=https"
+      - "traefik.http.routers.lidarr-secure.rule=Host(`lidarr.skyscrpr.studio`)"
+      - "traefik.http.routers.lidarr-secure.tls=true"
+      - "traefik.http.routers.lidarr-secure.service=lidarr"
+      - "traefik.http.services.lidarr.loadbalancer.server.port=8686"
+      - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true

@@ -1,0 +1,34 @@
+version: "3.7"
+
+services:
+  mstream:
+    image: lscr.io/linuxserver/mstream:latest
+    container_name: mstream
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /home/skyscrpr/mstream/data:/data
+      - /mnt/datam/Library:/music
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mstream.entrypoints=http"
+      - "traefik.http.routers.mstream.rule=Host(`mstream.skyscrpr.studio`)"
+      - "traefik.http.middlewares.mstream-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.mstream.middlewares=mstream-https-redirect"
+      - "traefik.http.routers.mstream-secure.entrypoints=https"
+      - "traefik.http.routers.mstream-secure.rule=Host(`mstream.skyscrpr.studio`)"
+      - "traefik.http.routers.mstream-secure.tls=true"
+      - "traefik.http.routers.mstream-secure.service=mstream"
+      - "traefik.http.services.mstream.loadbalancer.server.port=3000"
+      - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true
